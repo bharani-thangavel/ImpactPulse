@@ -476,15 +476,19 @@ async function syncSupabaseInitialData() {
 // EXPRESS ROUTE HANDLERS
 // ==========================================
 
-async function startServer() {
-  const app = express();
-  app.use(express.json());
+export const app = express();
+app.use(express.json());
 
-  // Connect to Supabase and load initial data
-  await syncSupabaseInitialData();
+let isInitialized = false;
+export async function initServer() {
+  if (!isInitialized) {
+    await syncSupabaseInitialData();
+    isInitialized = true;
+  }
+}
 
-  // Database Connection Status Endpoint
-  app.get("/api/db-status", async (req, res) => {
+// Database Connection Status Endpoint
+app.get("/api/db-status", async (req, res) => {
     const client = getSupabase();
     if (!client) {
       return res.json({
@@ -513,6 +517,125 @@ async function startServer() {
         connected: false,
         error: err?.message || String(err),
       });
+    }
+  });
+
+  // Database Reset Endpoint
+  app.post("/api/db/reset", async (req, res) => {
+    try {
+      const { seedDemoData = true } = req.body || {};
+      const client = getSupabase();
+
+      if (client) {
+        const tables = [
+          "peer_kudos",
+          "service_logs",
+          "team_messages",
+          "burnout_replies",
+          "notifications",
+          "badges",
+          "leadership_applications",
+          "attendance_records",
+          "registrations",
+          "events",
+          "users",
+        ];
+
+        for (const tbl of tables) {
+          try {
+            await client.from(tbl).delete().neq("id", "___non_existent_id___");
+          } catch (e) {
+            console.error(`Error truncating table ${tbl}:`, e);
+          }
+        }
+      }
+
+      // Clear memory arrays
+      users = [];
+      events = [];
+      registrations = [];
+      attendanceRecords = [];
+      leadershipApplications = [];
+      badges = [];
+      notifications = [];
+      teamMessages = [];
+      burnoutReplies = [];
+      serviceLogs = [];
+      peerKudos = [];
+
+      if (seedDemoData) {
+        // Seed clean default system accounts
+        const defaultAdmin: User = {
+          id: "u-admin-1",
+          name: "System Administrator",
+          email: "admin@impactpulse.org",
+          role: "admin",
+          status: "approved",
+          organizationName: "ImpactPulse HQ",
+          totalHours: 0,
+          totalPoints: 0,
+          memberSince: new Date().toISOString().split("T")[0],
+        };
+
+        const defaultOrganizer: User = {
+          id: "u-organizer-1",
+          name: "Green Earth Foundation",
+          email: "organizer@greenearth.org",
+          role: "organizer",
+          status: "approved",
+          organizationName: "Green Earth Foundation",
+          contactDetails: "contact@greenearth.org",
+          phone: "+1 (555) 234-5678",
+          totalHours: 0,
+          totalPoints: 0,
+          memberSince: new Date().toISOString().split("T")[0],
+        };
+
+        const defaultVolunteer: User = {
+          id: "u-volunteer-1",
+          name: "Alex Johnson",
+          email: "volunteer@impactpulse.org",
+          role: "volunteer",
+          status: "approved",
+          phone: "+1 (555) 876-5432",
+          interests: ["Environment", "Community Outreach"],
+          totalHours: 0,
+          totalPoints: 0,
+          memberSince: new Date().toISOString().split("T")[0],
+        };
+
+        users = [defaultAdmin, defaultOrganizer, defaultVolunteer];
+
+        const starterBadges: Badge[] = [
+          {
+            id: `b-1-u-volunteer-1`,
+            volunteerId: "u-volunteer-1",
+            badgeName: "First Steps",
+            description: "Registered as a verified community volunteer",
+            category: "General",
+            iconName: "Footprints",
+            earnedDate: new Date().toISOString().split("T")[0],
+            isUnlocked: true,
+          },
+        ];
+        badges = starterBadges;
+
+        if (client) {
+          for (const u of users) await dbUpsert("users", userToRow(u));
+          for (const b of badges) await dbUpsert("badges", badgeToRow(b));
+        }
+      }
+
+      return res.json({
+        message: seedDemoData
+          ? "Database reset successfully! Fresh demo accounts (Admin, Organizer, Volunteer) have been initialized."
+          : "Database reset successfully! All tables have been completely cleared.",
+        usersCount: users.length,
+        eventsCount: events.length,
+      });
+    } catch (err: any) {
+      console.error("Database reset error:", err);
+      return res.status(500).json({ error: err?.message || "Failed to reset database." });
     }
   });
 
@@ -1684,23 +1807,28 @@ Return JSON in this format:
   });
 
   // --- VITE MIDDLEWARE & PROD SERVING ---
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
+  if (process.env.VERCEL !== "1") {
+    async function startServer() {
+      await initServer();
+
+      if (process.env.NODE_ENV !== "production") {
+        const vite = await createViteServer({
+          server: { middlewareMode: true },
+          appType: "spa",
+        });
+        app.use(vite.middlewares);
+      } else {
+        const distPath = path.join(process.cwd(), "dist");
+        app.use(express.static(distPath));
+        app.get("*", (req, res) => {
+          res.sendFile(path.join(distPath, "index.html"));
+        });
+      }
+
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+      });
+    }
+
+    startServer();
   }
-
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
-
-startServer();

@@ -58,6 +58,15 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  // DB
+  getDbStatus: () => request<{ connected: boolean; message: string; error?: string; hint?: string; totalUsersInDb?: number; totalEventsInDb?: number }>('/api/db-status'),
+
+  resetDatabase: (seedDemoData = true) =>
+    request<{ message: string; usersCount?: number; eventsCount?: number }>('/api/db/reset', {
+      method: 'POST',
+      body: JSON.stringify({ seedDemoData }),
+    }),
+
   // Auth
   login: (email: string, role: Role) =>
     request<{ message: string; user: User }>('/api/auth/login', {
