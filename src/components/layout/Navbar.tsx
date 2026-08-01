@@ -72,7 +72,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div>
             <span className="font-bold text-slate-900 dark:text-white text-lg tracking-tight flex items-center gap-1.5">
-              ImpactPulse <span className="text-xs bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 font-semibold px-2 py-0.5 rounded-full">SaaS</span>
+              ImpactPulse <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 font-semibold px-2 py-0.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Supabase Live
+              </span>
             </span>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Volunteer Impact Management Platform</p>
           </div>

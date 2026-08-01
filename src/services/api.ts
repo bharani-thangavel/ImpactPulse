@@ -16,29 +16,44 @@ import {
 } from '../types';
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-    ...options,
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+      ...options,
+    });
+  } catch (netErr: any) {
+    throw new Error(`Connection error: ${netErr.message || 'Failed to reach server'}`);
+  }
 
-  const contentType = res.headers.get('content-type');
-  let data: any;
-  if (contentType && contentType.includes('application/json')) {
-    data = await res.json();
+  const contentType = res.headers.get('content-type') || '';
+  let data: any = null;
+
+  if (contentType.includes('application/json')) {
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
   } else {
     const text = await res.text();
     if (!res.ok) {
-      throw new Error(`Server response error (${res.status}): ${res.statusText || 'Request failed'}`);
+      throw new Error(`Server error (${res.status}): ${res.statusText || text || 'Request failed'}`);
     }
-    throw new Error('Invalid JSON response from server');
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error('Server returned invalid response format');
+    }
   }
 
   if (!res.ok) {
-    throw new Error(data?.error || 'API Request Failed');
+    throw new Error(data?.error || data?.message || `Request failed (${res.status})`);
   }
+
   return data as T;
 }
 
