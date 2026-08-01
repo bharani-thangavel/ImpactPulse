@@ -1,8 +1,7 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
-import { getSupabase } from "./src/lib/supabase.js";
+import { getSupabase } from "./src/lib/supabase";
 import {
   User,
   EventItem,
@@ -17,7 +16,7 @@ import {
   BurnoutReply,
   ServiceLogEntry,
   PeerKudo,
-} from "./src/types/index.js";
+} from "./src/types/index";
 
 const PORT = 3000;
 
@@ -1812,6 +1811,7 @@ Return JSON in this format:
       await initServer();
 
       if (process.env.NODE_ENV !== "production") {
+        const { createServer: createViteServer } = await import("vite");
         const vite = await createViteServer({
           server: { middlewareMode: true },
           appType: "spa",
