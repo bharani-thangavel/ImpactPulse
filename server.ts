@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { GoogleGenAI } from "@google/genai";
-import { getSupabase } from "./src/lib/supabase";
+import { getSupabase } from "./src/lib/supabase.js";
 import {
   User,
   EventItem,
@@ -16,7 +16,7 @@ import {
   BurnoutReply,
   ServiceLogEntry,
   PeerKudo,
-} from "./src/types/index";
+} from "./src/types/index.js";
 
 const PORT = 3000;
 
@@ -481,7 +481,14 @@ app.use(express.json());
 let isInitialized = false;
 export async function initServer() {
   if (!isInitialized) {
-    await syncSupabaseInitialData();
+    try {
+      await Promise.race([
+        syncSupabaseInitialData(),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]);
+    } catch (e) {
+      console.error("Initial data sync warning:", e);
+    }
     isInitialized = true;
   }
 }
