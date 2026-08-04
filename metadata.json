@@ -1,6 +1,6 @@
 {
-  "name": "Remix ImpactPulse2.0",
-  "description": "Imported from GitHub: srisatish-dev/ImpactPulse2.0",
+  "name": "ImpactPulse 💓",
+  "description": "Enterprise SaaS platform for verified event coordination, automated attendance tracking, gamified rewards, and AI-driven impact analytics.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
