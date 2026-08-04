@@ -697,7 +697,7 @@ app.get("/api/db-status", async (req, res) => {
       if (role === "admin") {
         if (cleanEmail !== "admin@gmail.com" || cleanPassword !== "admin") {
           return res.status(401).json({
-            error: "Access Denied: Only the authorized System Administrator (admin@gmail.com) with password 'admin' can access the Admin Portal.",
+            error: "Invalid credentials.",
           });
         }
 
