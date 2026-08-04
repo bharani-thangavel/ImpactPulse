@@ -28,13 +28,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Form states
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
-    password: '',
+    email: initialRole === 'admin' ? 'admin@gmail.com' : initialRole === 'organizer' ? 'organizer@greenearth.org' : 'volunteer@impactpulse.org',
+    password: initialRole === 'admin' ? 'admin' : 'password',
     organizationName: '',
     contactDetails: '',
     phone: '',
     interests: [] as string[],
   });
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setActiveRole(initialRole);
+      setIsRegister(false);
+      setError(null);
+      setInfoMessage(null);
+      if (initialRole === 'admin') {
+        setFormData((prev) => ({ ...prev, email: 'admin@gmail.com', password: 'admin' }));
+      } else if (initialRole === 'organizer') {
+        setFormData((prev) => ({ ...prev, email: 'organizer@greenearth.org', password: 'password' }));
+      } else {
+        setFormData((prev) => ({ ...prev, email: 'volunteer@impactpulse.org', password: 'password' }));
+      }
+    }
+  }, [isOpen, initialRole]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -72,7 +88,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onClose();
       } else {
         // Login
-        const res = await api.login(formData.email, activeRole);
+        const res = await api.login(formData.email, activeRole, formData.password);
         onAuthSuccess(res.user);
         onClose();
       }
@@ -119,7 +135,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 setActiveRole('admin');
                 setIsRegister(false);
                 clearAlerts();
-                setFormData({ ...formData, email: 'admin@impact.org' });
+                setFormData((prev) => ({ ...prev, email: 'admin@gmail.com', password: 'admin' }));
               }}
               className={`py-2 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
                 activeRole === 'admin'
@@ -136,7 +152,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => {
                 setActiveRole('organizer');
                 clearAlerts();
-                setFormData({ ...formData, email: 'eco@greenearth.org' });
+                setFormData((prev) => ({ ...prev, email: 'organizer@greenearth.org', password: 'password' }));
               }}
               className={`py-2 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
                 activeRole === 'organizer'
@@ -153,7 +169,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => {
                 setActiveRole('volunteer');
                 clearAlerts();
-                setFormData({ ...formData, email: 'sarah@volunteer.org' });
+                setFormData((prev) => ({ ...prev, email: 'volunteer@impactpulse.org', password: 'password' }));
               }}
               className={`py-2 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
                 activeRole === 'volunteer'
@@ -166,6 +182,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Admin Credentials Hint */}
+        {activeRole === 'admin' && (
+          <div className="p-3 mb-5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/80 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 text-xs flex items-center gap-2.5 font-medium shadow-2xs">
+            <Shield className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <span>Restricted Access: Log in using <strong>admin@gmail.com</strong> (Password: <strong>admin</strong>)</span>
+          </div>
+        )}
 
         {/* Yellow Approval / Info Alert */}
         {infoMessage && (
@@ -336,17 +360,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Toggle Register / Login */}
         <div className="text-center mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <button
-            onClick={() => {
-              setIsRegister(!isRegister);
-              clearAlerts();
-            }}
-            className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:underline"
-          >
-            {isRegister
-              ? 'Already registered? Switch to Login'
-              : `Need an ${activeRole} account? Register here`}
-          </button>
+          {activeRole === 'admin' ? (
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              System Administrator registration is restricted to the single authorized account (<strong>admin@gmail.com</strong>).
+            </p>
+          ) : (
+            <button
+              onClick={() => {
+                setIsRegister(!isRegister);
+                clearAlerts();
+              }}
+              className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:underline"
+            >
+              {isRegister
+                ? 'Already registered? Switch to Login'
+                : `Need an ${activeRole} account? Register here`}
+            </button>
+          )}
         </div>
 
       </div>

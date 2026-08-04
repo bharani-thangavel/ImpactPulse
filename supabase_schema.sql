@@ -203,3 +203,48 @@ ALTER TABLE burnout_replies DISABLE ROW LEVEL SECURITY;
 ALTER TABLE team_messages DISABLE ROW LEVEL SECURITY;
 ALTER TABLE service_logs DISABLE ROW LEVEL SECURITY;
 ALTER TABLE peer_kudos DISABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- SAMPLE SEED DATA
+-- ==========================================
+
+-- Initial Users (Admin, Organizer, Volunteer)
+INSERT INTO users (id, name, email, role, status, organization_name, contact_details, phone, interests, total_hours, total_points, member_since)
+VALUES 
+  ('u-admin-1', 'System Administrator', 'admin@gmail.com', 'admin', 'approved', 'ImpactPulse HQ', 'admin@gmail.com', '+1 (555) 019-2831', ARRAY['Administration', 'Community Growth'], 0, 0, '2025-01-01'),
+  ('u-organizer-1', 'Green Earth Foundation', 'organizer@greenearth.org', 'organizer', 'approved', 'Green Earth Foundation', 'contact@greenearth.org', '+1 (555) 234-5678', ARRAY['Environment', 'Sustainability'], 0, 0, '2025-01-15'),
+  ('u-volunteer-1', 'Alex Johnson', 'volunteer@impactpulse.org', 'volunteer', 'approved', NULL, NULL, '+1 (555) 876-5432', ARRAY['Environment', 'Community Outreach', 'Education'], 24.5, 350, '2025-02-01')
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Events
+INSERT INTO events (id, title, description, organizer_id, organizer_name, organization_name, category, venue, date, time, duration, points, members_required, members_registered, status, contact_details)
+VALUES
+  ('e-101', 'Coastal Clean-up Drive 2026', 'Join our volunteers to clear coastal litter, record waste analytics, and protect marine ecosystems.', 'u-organizer-1', 'Green Earth Foundation', 'Green Earth Foundation', 'Environment', 'Ocean Beach Park, Zone B', '2026-08-15', '09:00 AM', 4, 100, 20, 1, 'ongoing', 'contact@greenearth.org'),
+  ('e-102', 'Community Food Bank Distribution', 'Packing and distributing essential groceries to families in need across urban neighborhoods.', 'u-organizer-1', 'Green Earth Foundation', 'Green Earth Foundation', 'Community', 'Central Community Center', '2026-08-20', '10:30 AM', 3, 75, 15, 0, 'pending', 'contact@greenearth.org')
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Registrations
+INSERT INTO registrations (id, event_id, volunteer_id, volunteer_name, volunteer_email, volunteer_phone, volunteer_total_hours, volunteer_total_points, is_leader)
+VALUES
+  ('r-101', 'e-101', 'u-volunteer-1', 'Alex Johnson', 'volunteer@impactpulse.org', '+1 (555) 876-5432', 24.5, 350, false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Badges
+INSERT INTO badges (id, volunteer_id, badge_name, description, category, icon_name, earned_date, is_unlocked)
+VALUES
+  ('b-1-u-volunteer-1', 'u-volunteer-1', 'First Steps', 'Registered as a verified community volunteer', 'General', 'Footprints', '2025-02-01', true),
+  ('b-2-u-volunteer-1', 'u-volunteer-1', 'Eco Guardian', 'Completed over 20 hours of environmental service', 'Environment', 'Trees', '2025-05-10', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Service Logs
+INSERT INTO service_logs (id, volunteer_id, volunteer_name, activity_title, category, date, hours_logged, expense_amount, expense_description, notes, status)
+VALUES
+  ('sl-1', 'u-volunteer-1', 'Alex Johnson', 'Tree Plantation Drive', 'Environment', '2026-07-20', 5.5, 15.00, 'Bus fare & gloves', 'Planted 30 saplings at Oakwood Park.', 'verified')
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Notifications
+INSERT INTO notifications (id, user_id, title, message, type, read_status, category)
+VALUES
+  ('n-1', 'u-volunteer-1', 'Welcome to ImpactPulse!', 'Your volunteer profile has been approved. Start discovering events near you.', 'success', false, 'System')
+ON CONFLICT (id) DO NOTHING;
+

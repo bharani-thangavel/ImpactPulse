@@ -1,90 +1,133 @@
-# Impact Pulse
+# ImpactPulse 2.0 – Unified Community Volunteering & Impact Platform
 
-A volunteer impact-management platform that goes beyond scheduling and hour-tracking — it actively protects volunteer retention instead of just gamifying participation.
-
-**Live Demo:** https://impactpulse-final.ai.studio
+ImpactPulse 2.0 is a full-stack, multi-role community volunteering and impact management platform. It empowers volunteers, organizers, and platform administrators with streamlined event coordination, verified service hour tracking, gamified achievements, peer recognition, wellness monitoring, and AI-powered event optimization.
 
 ---
 
-## The Problem
+## 🚀 Live Deployment Link
 
-Most volunteer/social-service portals handle the basics — sign-ups, scheduling, hour tracking — but stop there. Two gaps stood out to us:
+- **Live Application URL**: [https://ais-pre-xrjecq35cxqfwbqpqbjcbf-624168560310.asia-southeast1.run.app](https://ais-pre-xrjecq35cxqfwbqpqbjcbf-624168560310.asia-southeast1.run.app)
 
-1. **Matching is shallow.** Volunteers pick from a flat list of open shifts instead of being matched by skill, interest, or reliability, which leads to mismatched roles and drop-off.
-2. **Retention tools only push people to do more.** Streaks, leaderboards, and badges reward increasing activity — none of them catch a volunteer quietly over-committing and disengaging *before* they ghost entirely.
+---
 
-Impact Pulse is built to close both gaps.
+## ✨ Key Features & User Roles
 
-## Features
+### 1. 🙋‍♂️ Volunteer Portal
+- **Event Discovery & Filtering**: Search and filter upcoming community events by location, category, duration, and rewards.
+- **One-Click Event Registration**: Instant sign-up with real-time slot tracking and calendar integrations.
+- **Verified Service Hours**: Log community service hours with expense receipts and descriptions for organizer approval.
+- **Gamification & Rewards**: Earn points, unlock achievement badges (e.g. *Eco Guardian*, *First Steps*), and climb leaderboard ranks.
+- **Peer Kudos & Social Impact**: Send appreciation messages and recognitions to fellow volunteers.
+- **AI Burnout Assistant**: Complete periodic wellness checks and receive automated AI guidance powered by Gemini.
 
-**Core**
-- Role-based access for Admins, Organizers, and Volunteers
-- Event creation, approval workflow, and attendance tracking
-- Volunteer profiles, points, and badge progression
-- Beneficiary case linkage with outcome tracking, for funder-facing impact reporting
+### 2. 🏢 Organizer Portal
+- **Event Lifecycle Management**: Draft, schedule, update, or cancel community drives and volunteer events.
+- **Volunteer Rosters**: Review registrations, assign team leaders, and send group updates.
+- **Hours & Expense Verification**: Audit and approve volunteer service logs and reimbursement claims.
+- **Impact Analytics**: Track total volunteer hours, active volunteers, and organization-wide metrics.
 
-**Novel additions**
-- **Skill-based matching engine** — recommends opportunities to volunteers (and volunteers to organizers) based on weighted skill overlap, category interest, attendance reliability, and recent activity — not just open-shift availability
-- **Burnout early-warning system** — the inverse of typical gamification: instead of pushing volunteers toward more activity, it tracks participation cadence, notification response latency, and post-event feedback sentiment per volunteer to flag *early disengagement risk* to organizers, prompting a check-in rather than another task assignment. Flags are visible only to organizers, never scored against the volunteer.
-- **Leadership candidate ranking** — when multiple volunteers apply to lead an event, applicants are automatically ranked by badge/achievement tier and category-fit with the event, with both factors shown transparently so organizers can still override the suggested order.
+### 3. 🛡️ Admin Portal
+- **User Verification & Approvals**: Review and approve pending organizer and volunteer registrations.
+- **System Metrics & Monitoring**: Platform-wide activity dashboard monitoring user growth, event output, and database sync status.
+- **Broadcast System**: Send platform-wide announcements and alerts to all registered users.
 
-## Tech Stack
+---
 
-- **Frontend:** Vite + TypeScript
-- **Backend:** Node.js (`server.ts`)
-- **Database / Auth:** [Supabase](https://supabase.com) (Postgres, Row Level Security, Auth)
-- **Built with:** Google AI Studio
+## 🔑 Access & Admin Credentials
 
-## Getting Started
+- **Single Authorized Admin Account**:
+  - **Email**: `admin@gmail.com`
+  - **Password**: `admin`
+  - *(Note: Admin portal access is strictly restricted to this single account. Registration of new admin accounts is disabled.)*
 
-### Prerequisites
-- [Node.js](https://nodejs.org) (LTS recommended)
-- A [Supabase](https://supabase.com) project (free tier is enough)
+- **Demo Organizer Account**: `organizer@greenearth.org`
+- **Demo Volunteer Account**: `volunteer@impactpulse.org`
 
-### Setup
+---
 
+## 🛠️ Tech Stack
+
+- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Lucide React, Motion (Framer Motion)
+- **Backend API**: Express.js (Node.js runtime / serverless API handlers)
+- **Database**: Supabase PostgreSQL with real-time client & row-level access patterns (`supabase_schema.sql`)
+- **AI Engine**: Google Gemini API (`@google/genai`) for event enrichment, match suggestions, and wellness support
+- **Deployment & Serverless Routing**: Configured for Cloud Run container hosting & Vercel serverless deployment (`vercel.json`)
+
+---
+
+## 🗄️ Database Schema & Structure
+
+The complete database structure and initial seed data are provided in `supabase_schema.sql`.
+
+### Core Tables
+- `users`: Profiles for Volunteers, Organizers, and System Admins.
+- `events`: Community service events, locations, reward points, and capacity.
+- `registrations`: Volunteer sign-ups and attendance statuses.
+- `badges`: Earned volunteer achievements and milestone unlocks.
+- `service_logs`: Detailed volunteer service hours, expense claims, and verification statuses.
+- `peer_kudos`: Peer appreciation logs and social recognition.
+- `notifications`: User alert feed and system broadcast messages.
+- `burnout_logs`: Wellness check records and AI response logs.
+- `team_messages`: Event-specific messaging threads.
+
+---
+
+## ⚙️ Environment Variables
+
+Copy `.env.example` to create your local `.env` file:
+
+```env
+# Supabase Configuration
+SUPABASE_URL=https://your-supabase-project.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+
+# Google Gemini API Key
+GEMINI_API_KEY=your-gemini-api-key
+```
+
+---
+
+## 📦 Local Installation & Setup
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/srisatish-dev/ImpactPulse2.0.git
+   cd ImpactPulse2.0
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Set Up Database**:
+   - Create a project on [Supabase](https://supabase.com/).
+   - Open the SQL Editor in Supabase and execute the script inside `supabase_schema.sql`.
+
+4. **Start Development Server**:
+   ```bash
+   npm run dev
+   ```
+   The app will run on `http://localhost:3000`.
+
+---
+
+## 🚀 Build & Production Deployment
+
+### Production Build
 ```bash
-# Clone the repo
-git clone <your-repo-url>
-cd impact-pulse
-
-# Install dependencies
-npm install
-
-# Configure environment variables
-cp .env.example .env
+npm run build
+npm start
 ```
 
-Fill in `.env` with your Supabase project credentials (found in Supabase → Project Settings → API):
+### Vercel Serverless Deployment
+1. Import the repository into **Vercel**.
+2. Add the environment variables (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`) in **Project Settings > Environment Variables**.
+3. Deploy directly. `vercel.json` and `/api/index.ts` automatically route backend endpoints cleanly.
 
-```
-SUPABASE_URL=your-project-url
-SUPABASE_ANON_KEY=your-anon-key
-```
+---
 
-```bash
-# Run locally
-npm run dev
-```
+## 📄 License
 
-The app will be available at `http://localhost:5173` (Vite's default port).
-
-> **Note:** Google Sign-In (if enabled) requires a live/deployed domain and will not work on `localhost` — use email/password auth for local testing.
-
-## Project Structure
-
-```
-impact-pulse/
-├── src/            # Frontend application code
-├── server.ts       # Backend server
-├── package.json
-├── vite.config.ts
-├── tsconfig.json
-└── .env.example
-```
-
-
-
-## License
-
-[Add your chosen license here, e.g. MIT]
+Distributed under the MIT License.

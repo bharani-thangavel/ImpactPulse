@@ -465,6 +465,41 @@ async function syncSupabaseInitialData() {
     if (!slRes.error && slRes.data) serviceLogs = slRes.data.map(rowToServiceLog);
     if (!pkRes.error && pkRes.data) peerKudos = pkRes.data.map(rowToPeerKudo);
 
+    // Ensure single designated admin account (admin@gmail.com) exists
+    let adminUser = users.find((u) => u.email && u.email.toLowerCase() === "admin@gmail.com");
+    if (!adminUser) {
+      const oldAdmin = users.find((u) => u.role === "admin");
+      if (oldAdmin) {
+        oldAdmin.email = "admin@gmail.com";
+        adminUser = oldAdmin;
+      } else {
+        adminUser = {
+          id: "u-admin-1",
+          name: "System Administrator",
+          email: "admin@gmail.com",
+          role: "admin",
+          status: "approved",
+          organizationName: "ImpactPulse HQ",
+          totalHours: 0,
+          totalPoints: 0,
+          memberSince: new Date().toISOString().split("T")[0],
+        };
+        users.push(adminUser);
+      }
+    } else {
+      adminUser.role = "admin";
+      adminUser.status = "approved";
+    }
+    dbUpsert("users", userToRow(adminUser));
+
+    // Ensure no other account holds the admin role
+    users.forEach((u) => {
+      if (u.email && u.email.toLowerCase() !== "admin@gmail.com" && u.role === "admin") {
+        u.role = "volunteer";
+        dbUpsert("users", userToRow(u));
+      }
+    });
+
     console.log(`Connected to Supabase! Sync complete (${users.length} users, ${events.length} events loaded).`);
   } catch (err) {
     console.error("Error connecting or fetching from Supabase:", err);
@@ -574,7 +609,7 @@ app.get("/api/db-status", async (req, res) => {
         const defaultAdmin: User = {
           id: "u-admin-1",
           name: "System Administrator",
-          email: "admin@impactpulse.org",
+          email: "admin@gmail.com",
           role: "admin",
           status: "approved",
           organizationName: "ImpactPulse HQ",
@@ -634,7 +669,7 @@ app.get("/api/db-status", async (req, res) => {
 
       return res.json({
         message: seedDemoData
-          ? "Database reset successfully! Fresh demo accounts (Admin, Organizer, Volunteer) have been initialized."
+          ? "Database reset successfully! Single Admin account (admin@gmail.com) and demo accounts initialized."
           : "Database reset successfully! All tables have been completely cleared.",
         usersCount: users.length,
         eventsCount: events.length,
@@ -654,6 +689,45 @@ app.get("/api/db-status", async (req, res) => {
       }
 
       const cleanEmail = String(email).trim().toLowerCase();
+      const cleanPassword = password ? String(password).trim() : "";
+
+      // Strict Single Admin Login Verification
+      if (role === "admin") {
+        if (cleanEmail !== "admin@gmail.com" || cleanPassword !== "admin") {
+          return res.status(401).json({
+            error: "Access Denied: Only the authorized System Administrator (admin@gmail.com) with password 'admin' can access the Admin Portal.",
+          });
+        }
+
+        let adminUser = users.find((u) => u.email && u.email.toLowerCase() === "admin@gmail.com");
+        if (!adminUser) {
+          adminUser = {
+            id: "u-admin-1",
+            name: "System Administrator",
+            email: "admin@gmail.com",
+            role: "admin",
+            status: "approved",
+            organizationName: "ImpactPulse HQ",
+            totalHours: 0,
+            totalPoints: 0,
+            memberSince: new Date().toISOString().split("T")[0],
+          };
+          users.push(adminUser);
+          dbUpsert("users", userToRow(adminUser));
+        } else {
+          adminUser.role = "admin";
+          adminUser.status = "approved";
+          dbUpsert("users", userToRow(adminUser));
+        }
+
+        return res.json({ message: "Admin login successful", user: adminUser });
+      }
+
+      // Prevent non-admin logins from using the designated admin account
+      if (cleanEmail === "admin@gmail.com") {
+        return res.status(403).json({ error: "The System Administrator account (admin@gmail.com) can only log in under the 'ADMIN' role." });
+      }
+
       const user = users.find((u) => u.email && u.email.toLowerCase() === cleanEmail);
 
       if (!user) {
@@ -690,7 +764,18 @@ app.get("/api/db-status", async (req, res) => {
         return res.status(400).json({ error: "Full Name, Email Address, and Role are required fields." });
       }
 
+      // Prohibit new Admin registrations
+      if (role === "admin") {
+        return res.status(403).json({
+          error: "Admin registration is restricted. Only the single designated Administrator account (admin@gmail.com) is eligible for Admin privileges.",
+        });
+      }
+
       const cleanEmail = String(email).trim().toLowerCase();
+      if (cleanEmail === "admin@gmail.com") {
+        return res.status(400).json({ error: "This email address is reserved exclusively for the System Administrator." });
+      }
+
       const existing = users.find((u) => u.email && u.email.toLowerCase() === cleanEmail);
       if (existing) {
         return res.status(400).json({ error: "An account with this email address already exists." });

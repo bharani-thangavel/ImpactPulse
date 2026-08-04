@@ -68,10 +68,10 @@ export const api = {
     }),
 
   // Auth
-  login: (email: string, role: Role) =>
+  login: (email: string, role: Role, password?: string) =>
     request<{ message: string; user: User }>('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password: 'password', role }),
+      body: JSON.stringify({ email, password: password || '', role }),
     }),
 
   register: (userData: Partial<User>) =>
