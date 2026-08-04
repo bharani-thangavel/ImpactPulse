@@ -4,6 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 import { getSupabase } from "./src/lib/supabase.js";
 import {
   User,
+  Role,
   EventItem,
   Registration,
   AttendanceRecord,
@@ -124,6 +125,7 @@ function rowToEvent(r: any): EventItem {
     status: r.status,
     contactDetails: r.contact_details || undefined,
     image: r.image || undefined,
+    createdAt: r.created_at || new Date().toISOString(),
   };
 }
 

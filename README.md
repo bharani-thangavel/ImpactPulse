@@ -33,18 +33,6 @@ ImpactPulse 2.0 is a full-stack, multi-role community volunteering and impact ma
 
 ---
 
-## 🔑 Access & Admin Credentials
-
-- **Single Authorized Admin Account**:
-  - **Email**: `admin@gmail.com`
-  - **Password**: `admin`
-  - *(Note: Admin portal access is strictly restricted to this single account. Registration of new admin accounts is disabled.)*
-
-- **Demo Organizer Account**: `organizer@greenearth.org`
-- **Demo Volunteer Account**: `volunteer@impactpulse.org`
-
----
-
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Lucide React, Motion (Framer Motion)
