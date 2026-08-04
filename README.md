@@ -2,7 +2,7 @@
 
 A volunteer impact-management platform that goes beyond scheduling and hour-tracking — it actively protects volunteer retention instead of just gamifying participation.
 
-**Live Demo:** https://impact-pulse.ai.studio
+**Live Demo:** https://impactpulse-final.ai.studio
 
 ---
 
