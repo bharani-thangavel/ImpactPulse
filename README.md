@@ -6,7 +6,7 @@ ImpactPulse 2.0 is a full-stack, multi-role community volunteering and impact ma
 
 ## 🚀 Live Deployment Link
 
-- **Live Application URL**: https://impactpulse-final.ai.studio
+- **Live Application URL**: [https://ais-pre-xrjecq35cxqfwbqpqbjcbf-624168560310.asia-southeast1.run.app](https://ais-pre-xrjecq35cxqfwbqpqbjcbf-624168560310.asia-southeast1.run.app)
 
 ---
 
